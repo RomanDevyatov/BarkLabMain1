@@ -8,8 +8,9 @@
             "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "program": "E:\\programming\\VSCode\\python\\lab1\\main.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": false
         },
         {
             "name": "Python: Attach",

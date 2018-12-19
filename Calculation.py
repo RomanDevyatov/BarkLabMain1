@@ -1,10 +1,8 @@
 #-*- coding: utf-8 -*-
-import math
-#from un import *
 from PyQt5 import QtWidgets
 from matplotlib import rcParams
 from PyQt5 import QtWidgets, QtGui, QtCore
-
+import math
 
 import pylab
 from matplotlib import mlab

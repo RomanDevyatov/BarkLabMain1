@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import math
-
 import Calculation
 from MtMplCanv import *
 from un import *
@@ -66,11 +64,11 @@ class second_window(QtWidgets.QMainWindow, Ui_MainWindow_tab):
         self.setupUi(self)
 
 if __name__=="__main__":
+    
     app = QtWidgets.QApplication(sys.argv)
     
-    main = Window() 
+    main = Window()
     main.show()
-    
     try:
         sys.exit(app.exec_())
     except SystemExit:
