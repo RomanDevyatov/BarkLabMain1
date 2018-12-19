@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets
 from matplotlib import rcParams
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -12,8 +12,7 @@ import numpy as np
 from un import Ui_MainWindow
 
 from main import Window
-from main import second_window 
-
+from main import second_window
 
 
 class Calculation(Ui_MainWindow):
@@ -39,14 +38,18 @@ class Calculation(Ui_MainWindow):
         Mark_list = []
 
         for i in range(n+1):
-            secwin.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(str(i)))
+            secwin.tableWidget.setItem(
+                i, 0, QtWidgets.QTableWidgetItem(str(i)))
 
         def abs_solution(x, const):
             return (const*math.exp(-5*x/2))
+
         def sol_const(x, u):
             return (u/(math.exp(-5*x/2)))
+
         def loc_err(step_u, two_step_u):
             return ((two_step_u - step_u) * ((8.0) / 7.0))
+
         def sub_v_v2(v, v2):
             return v-v2
 
@@ -54,31 +57,36 @@ class Calculation(Ui_MainWindow):
             if str(self.comboBox.currentText()) == 'Test':
                 return -2.5*u
             if str(self.comboBox.currentText()) == 'Main1':
-                return (((math.log(x + 1)) / (x*x + 1)) * (u *u) + u - (u *u*u) * math.sin(10 * x))
+                return (((math.log(x + 1)) / (x*x + 1)) * (u * u) + u - (u * u*u) * math.sin(10 * x))
 
-        #def func(u, v):
+        # def func(u, v):
         #    return v, -a*v*v-b*math.sin(u)
 
         def p1(x, u):
             return f(x, u)
+
         def p2(step, x, u):
             return f(x+step/2, u + step*p1(x, u) / 2)
+
         def p3(step, x, u):
             return f(x+step/2, u + step * p2(step, x, u)/2)
+
         def p4(step, x, u):
             return f(x+step, u+step*p3(step, x, u))
 
         def next_point_u(u, x, step):
             return (u + step * (p1(x, u) + 2 * p2(step, x, u) + 2 * p3(step, x, u) + p4(step, x, u)) / 6)
+
         def next_point_x(step, x):
             return x + step
         ##################################################
-        def new_point(step, x, u, row_num):#сюда поступают u0 x0 - самая первая точка
+
+        def new_point(step, x, u, row_num):  # сюда поступают u0 x0 - самая первая точка
             nonlocal h
             new_u = next_point_u(u, x, step)
             new_x = next_point_x(step, x)
 
-            #считаем методом с половинным шагом
+            # считаем методом с половинным шагом
             #add_u = next_point_u(u, step / 2)
             #add_x = next_point_x(step / 2, x)
 
@@ -88,12 +96,18 @@ class Calculation(Ui_MainWindow):
             S = loc_err(new_u, add_u)
 
             substr_V_V2 = sub_v_v2(new_u, add_u)
-            secwin.tableWidget.setItem(row_num, 1, QtWidgets.QTableWidgetItem(str(add_x)))
-            secwin.tableWidget.setItem(row_num, 2, QtWidgets.QTableWidgetItem(str(new_u)))
-            secwin.tableWidget.setItem(row_num, 3, QtWidgets.QTableWidgetItem(str(add_u)))
-            secwin.tableWidget.setItem(row_num, 4, QtWidgets.QTableWidgetItem(str(substr_V_V2)))
-            secwin.tableWidget.setItem(row_num, 5, QtWidgets.QTableWidgetItem(str(S)))
-            secwin.tableWidget.setItem(row_num, 6, QtWidgets.QTableWidgetItem(str(h)))
+            secwin.tableWidget.setItem(
+                row_num, 1, QtWidgets.QTableWidgetItem(str(add_x)))
+            secwin.tableWidget.setItem(
+                row_num, 2, QtWidgets.QTableWidgetItem(str(new_u)))
+            secwin.tableWidget.setItem(
+                row_num, 3, QtWidgets.QTableWidgetItem(str(add_u)))
+            secwin.tableWidget.setItem(
+                row_num, 4, QtWidgets.QTableWidgetItem(str(substr_V_V2)))
+            secwin.tableWidget.setItem(
+                row_num, 5, QtWidgets.QTableWidgetItem(str(S)))
+            secwin.tableWidget.setItem(
+                row_num, 6, QtWidgets.QTableWidgetItem(str(h)))
             nonlocal cnt_inc, cnt_dec
             if self.checkBox.isChecked():
                 if abs(S) >= eps / 16 and abs(S) <= eps:
@@ -101,14 +115,14 @@ class Calculation(Ui_MainWindow):
                     Mark_list.append(S)
                     return new_x, new_u
                 if abs(S) < eps / 16:
-                    h *= 2                    
+                    h *= 2
                     cnt_inc += 1
                     cnt_g_list.append(cnt_inc)
                     hlist.append(h)
                     Mark_list.append(S)
                     return new_x, new_u
                 if abs(S) > eps:
-                    h /= 2                    
+                    h /= 2
                     cnt_dec += 1
                     cnt_l_list.append(cnt_dec)
                     return new_point(h, x, u, row_num)
@@ -126,7 +140,8 @@ class Calculation(Ui_MainWindow):
             exact_x = x
             exact_u = abs_solution(x, const)
             for i in range(n):
-                secwin.tableWidget.setItem(i, 9, QtWidgets.QTableWidgetItem(str(exact_u)))
+                secwin.tableWidget.setItem(
+                    i, 9, QtWidgets.QTableWidgetItem(str(exact_u)))
 
                 prev_ex_x = exact_x
                 prev_ex_u = exact_u
@@ -136,9 +151,12 @@ class Calculation(Ui_MainWindow):
                 xlist.append(x)
                 Ilist.append(u)
 
-                secwin.tableWidget.setItem(i, 10, QtWidgets.QTableWidgetItem(str(abs(exact_u - u))))
-                secwin.tableWidget.setItem(i, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
-                secwin.tableWidget.setItem(i, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
+                secwin.tableWidget.setItem(
+                    i, 10, QtWidgets.QTableWidgetItem(str(abs(exact_u - u))))
+                secwin.tableWidget.setItem(
+                    i, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
+                secwin.tableWidget.setItem(
+                    i, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
 
                 x, u = new_point(h, x_, u_, i + 1)
                 if x > borderline:
@@ -149,22 +167,30 @@ class Calculation(Ui_MainWindow):
                 exact_u = abs_solution(exact_x, const)
                 ax.plot([prev_ex_x, exact_x], [prev_ex_u, exact_u], '-r')
             # заполняем последние строчки
-            secwin.tableWidget.setItem(n, 9, QtWidgets.QTableWidgetItem(str(exact_u)))
-            secwin.tableWidget.setItem(n, 10, QtWidgets.QTableWidgetItem(str(abs(exact_u - u))))
-            secwin.tableWidget.setItem(n, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
-            secwin.tableWidget.setItem(n, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
+            secwin.tableWidget.setItem(
+                n, 9, QtWidgets.QTableWidgetItem(str(exact_u)))
+            secwin.tableWidget.setItem(
+                n, 10, QtWidgets.QTableWidgetItem(str(abs(exact_u - u))))
+            secwin.tableWidget.setItem(
+                n, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
+            secwin.tableWidget.setItem(
+                n, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
 
             secwin.label_10.setText("Max U = " + str(max(Ilist)))
             secwin.label_7.setText("Max X = " + str(max(xlist)))
             secwin.label_8.setText("Max h = " + str(max(hlist)))
-            secwin.label_13.setText("Max Гл. Погр. = " + str(round(max(L_Elist), 9)))
+            secwin.label_13.setText(
+                "Max Гл. Погр. = " + str(round(max(L_Elist), 9)))
             secwin.label_15.setText("Max ОЛП = " + str(max(Mark_list)))
             secwin.label_9.setText("Min h = " + str(min(hlist)))
-            secwin.label_14.setText("Min Гл. Погр. = " + str(round(min(L_Elist), 9)))
+            secwin.label_14.setText(
+                "Min Гл. Погр. = " + str(round(min(L_Elist), 9)))
             secwin.label_12.setText("Min ОЛП = " + str(min(Mark_list)))
             if self.checkBox.isChecked():
-                secwin.label_11.setText("Общ кол-во увел. = " + str(max(cnt_g_list)))
-                secwin.label_16.setText("Общ кол-во уменьш. = " + str(max(cnt_l_list)))
+                secwin.label_11.setText(
+                    "Общ кол-во увел. = " + str(max(cnt_g_list)))
+                secwin.label_16.setText(
+                    "Общ кол-во уменьш. = " + str(max(cnt_l_list)))
             else:
                 secwin.label_11.setText("Общ кол-во увел. = --- ")
                 secwin.label_16.setText("Общ кол-во уменьш. = --- ")
@@ -183,16 +209,20 @@ class Calculation(Ui_MainWindow):
                 xlist.append(x)
                 Ilist.append(u)
 
-                secwin.tableWidget.setItem(i, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
-                secwin.tableWidget.setItem(i, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
+                secwin.tableWidget.setItem(
+                    i, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
+                secwin.tableWidget.setItem(
+                    i, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
 
                 x, u = new_point(h, x_, u_, i + 1)
                 if x > borderline:
                     xlist.append(x)
                     break
                 ax.plot([x_, x], [u_, u], '-b')
-            secwin.tableWidget.setItem(n, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
-            secwin.tableWidget.setItem(n, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
+            secwin.tableWidget.setItem(
+                n, 7, QtWidgets.QTableWidgetItem(str(cnt_inc)))
+            secwin.tableWidget.setItem(
+                n, 8, QtWidgets.QTableWidgetItem(str(cnt_dec)))
 
             secwin.label_10.setText("Max U = " + str(max(Ilist)))
             secwin.label_7.setText("Max X = " + str(max(xlist)))
@@ -221,8 +251,10 @@ class Calculation(Ui_MainWindow):
             S1list, S2list = [], []
             S1list.append(s1)
             S2list.append(s2)
-            secwin.tableWidget.setItem(0, 6, QtWidgets.QTableWidgetItem(str(h)))
-            secwin.tableWidget.setItem(0, 1, QtWidgets.QTableWidgetItem(str(x)))
+            secwin.tableWidget.setItem(
+                0, 6, QtWidgets.QTableWidgetItem(str(h)))
+            secwin.tableWidget.setItem(
+                0, 1, QtWidgets.QTableWidgetItem(str(x)))
             #secwin.tableWidget.setItem(0, 2, QtWidgets.QTableWidgetItem(str(u10)))
             #secwin.tableWidget.setItem(0, 3, QtWidgets.QTableWidgetItem(str(u20)))
 
@@ -238,11 +270,15 @@ class Calculation(Ui_MainWindow):
                 res[0][0] = du1(u1, u2)
                 res[0][1] = du2(u1, u2)
 
-                res[1][0] = du1(u1 + step * res[0][0] / 2, u2 + step * res[0][0] / 2)
-                res[1][1] = du2(u1 + step * res[0][1] / 2, u2 + step * res[0][1] / 2)
+                res[1][0] = du1(u1 + step * res[0][0] / 2,
+                                u2 + step * res[0][0] / 2)
+                res[1][1] = du2(u1 + step * res[0][1] / 2,
+                                u2 + step * res[0][1] / 2)
 
-                res[2][0] = du1(u1 + step * (res[0][0] + res[1][0]) / 6, u2 + step * (res[0][0] + res[1][0]) / 6)
-                res[2][1] = du2(u1 + step * (res[0][1] + res[1][1]) / 6, u2 + step * (res[0][1] + res[1][1]) / 6)
+                res[2][0] = du1(u1 + step * (res[0][0] + res[1][0]) / 6,
+                                u2 + step * (res[0][0] + res[1][0]) / 6)
+                res[2][1] = du2(u1 + step * (res[0][1] + res[1][1]) / 6,
+                                u2 + step * (res[0][1] + res[1][1]) / 6)
 
                 res[3][0] = du1(u1 + step * (res[0][0] + 3 * res[2][0]) / 8,
                                 u2 + step * (res[0][0] + 3 * res[2][0]) / 8)
@@ -261,11 +297,15 @@ class Calculation(Ui_MainWindow):
                 res[0][0] = du1(u1, u2)
                 res[0][1] = du2(u1, u2)
 
-                res[1][0] = du1(u1 + step * res[0][0] / 2, u2 + step * res[0][0] / 2)
-                res[1][1] = du2(u1 + step * res[0][1] / 2, u2 + step * res[0][1] / 2)
+                res[1][0] = du1(u1 + step * res[0][0] / 2,
+                                u2 + step * res[0][0] / 2)
+                res[1][1] = du2(u1 + step * res[0][1] / 2,
+                                u2 + step * res[0][1] / 2)
 
-                res[2][0] = du1(u1 + step * res[1][0] / 2, u2 + step * res[1][0] / 2)
-                res[2][1] = du2(u1 + step * res[1][1] / 2, u2 + step * res[1][1] / 2)
+                res[2][0] = du1(u1 + step * res[1][0] / 2,
+                                u2 + step * res[1][0] / 2)
+                res[2][1] = du2(u1 + step * res[1][1] / 2,
+                                u2 + step * res[1][1] / 2)
 
                 res[3][0] = du1(u1 + step * res[2][0], u2 + step * res[2][0])
                 res[3][1] = du2(u1 + step * res[2][1], u2 + step * res[2][1])
@@ -277,13 +317,18 @@ class Calculation(Ui_MainWindow):
                 x_new = x + h
                 h_list.append(h)
                 K = calc_coef_for_system(u1, u2, h)
-                s1 = h * (2 * K[0][0] - 9 * K[2][0] + 8 * K[3][0] - K[4][0]) / 30
-                s2 = h * (2 * K[0][1] - 9 * K[2][1] + 8 * K[3][1] - K[4][1]) / 30
-                secwin.tableWidget.setItem(number_r, 2, QtWidgets.QTableWidgetItem(str(abs(s1))))
-                secwin.tableWidget.setItem(number_r, 3, QtWidgets.QTableWidgetItem(str(abs(s2))))
+                s1 = h * (2 * K[0][0] - 9 * K[2][0] +
+                          8 * K[3][0] - K[4][0]) / 30
+                s2 = h * (2 * K[0][1] - 9 * K[2][1] +
+                          8 * K[3][1] - K[4][1]) / 30
+                secwin.tableWidget.setItem(
+                    number_r, 2, QtWidgets.QTableWidgetItem(str(abs(s1))))
+                secwin.tableWidget.setItem(
+                    number_r, 3, QtWidgets.QTableWidgetItem(str(abs(s2))))
                 u1_new = u1 + h * (K[0][0] + 4 * K[3][0] + K[4][0]) / 6
                 u2_new = u2 + h * (K[0][1] + 4 * K[3][1] + K[4][1]) / 6
-                secwin.tableWidget.setItem(number_r, 1, QtWidgets.QTableWidgetItem(str(x_new)))
+                secwin.tableWidget.setItem(
+                    number_r, 1, QtWidgets.QTableWidgetItem(str(x_new)))
                 #secwin.tableWidget.setItem(number_r, 0, QtWidgets.QTableWidgetItem(str(number_r)))
                 #secwin.tableWidget.setItem(number_r, 2, QtWidgets.QTableWidgetItem(str(u1_new)))
                 #secwin.tableWidget.setItem(number_r, 3, QtWidgets.QTableWidgetItem(str(u2_new)))
@@ -314,14 +359,20 @@ class Calculation(Ui_MainWindow):
                 nonlocal h
                 x_new = x + h
                 K = calc_coef_for_system_ps(du1, du2, u1, u2, h)
-                u1_new = u1 + h * (K[0][0] + 2 * K[1][0] + 2 * K[2][0] + K[3][0]) / 6
-                u2_new = u2 + h * (K[0][1] + 2 * K[1][1] + 2 * K[2][1] + K[3][1]) / 6
+                u1_new = u1 + h * (K[0][0] + 2 * K[1][0] +
+                                   2 * K[2][0] + K[3][0]) / 6
+                u2_new = u2 + h * (K[0][1] + 2 * K[1][1] +
+                                   2 * K[2][1] + K[3][1]) / 6
                 K = calc_coef_for_system_ps(du1, du2, u1, u2, h / 2)
-                u1_half = u1 + h * (K[0][0] + 2 * K[1][0] + 2 * K[2][0] + K[3][0]) / 12
-                u2_half = u2 + h * (K[0][1] + 2 * K[1][1] + 2 * K[2][1] + K[3][1]) / 12
+                u1_half = u1 + h * (K[0][0] + 2 * K[1]
+                                    [0] + 2 * K[2][0] + K[3][0]) / 12
+                u2_half = u2 + h * (K[0][1] + 2 * K[1]
+                                    [1] + 2 * K[2][1] + K[3][1]) / 12
                 K = calc_coef_for_system_ps(du1, du2, u1_half, u2_half, h / 2)
-                u1_half = u1_half + h * (K[0][0] + 2 * K[1][0] + 2 * K[2][0] + K[3][0]) / 12
-                u2_half = u2_half + h * (K[0][1] + 2 * K[1][1] + 2 * K[2][1] + K[3][1]) / 12
+                u1_half = u1_half + h * \
+                    (K[0][0] + 2 * K[1][0] + 2 * K[2][0] + K[3][0]) / 12
+                u2_half = u2_half + h * \
+                    (K[0][1] + 2 * K[1][1] + 2 * K[2][1] + K[3][1]) / 12
                 s1 = (u1_new - u1_half) * 16.0 / 15.0
                 s2 = (u2_new - u2_half) * 16.0 / 15.0
 
@@ -340,8 +391,10 @@ class Calculation(Ui_MainWindow):
                     return x_new, u1_new, u2_new
 
             def phase_plane(u10, u20, x0):
-                beg_point_u1 = np.arange(u10 - lim1, u10 + lim1, step1, dtype=np.float64)
-                beg_point_u2 = np.arange(u20 - lim2, u20 + lim2, step2, dtype=np.float64)
+                beg_point_u1 = np.arange(
+                    u10 - lim1, u10 + lim1, step1, dtype=np.float64)
+                beg_point_u2 = np.arange(
+                    u20 - lim2, u20 + lim2, step2, dtype=np.float64)
                 x_PS = x0
                 for i in beg_point_u2:
                     for j in beg_point_u1:
@@ -359,7 +412,7 @@ class Calculation(Ui_MainWindow):
                         ax3.plot(u2list_PS, u1list_PS, '-y')
                         x_PS = x0
 
-            ax1= self.fig.add_subplot(221)
+            ax1 = self.fig.add_subplot(221)
             ax2 = self.fig.add_subplot(223)
             ax3 = self.fig.add_subplot(122)
 
@@ -378,28 +431,35 @@ class Calculation(Ui_MainWindow):
             xlist.append(x)
             while x_ < borderline and abs(u) < 200 and abs(p) < 200:
                 x_, u, p = next_point(x_, u, p, i + 1)
-                secwin.tableWidget.setItem(i + 1, 6, QtWidgets.QTableWidgetItem(str(h)))
-                secwin.tableWidget.setItem(i + 1, 7, QtWidgets.QTableWidgetItem(str(cnt_dec)))
-                secwin.tableWidget.setItem(i + 1, 8, QtWidgets.QTableWidgetItem(str(cnt_inc)))
+                secwin.tableWidget.setItem(
+                    i + 1, 6, QtWidgets.QTableWidgetItem(str(h)))
+                secwin.tableWidget.setItem(
+                    i + 1, 7, QtWidgets.QTableWidgetItem(str(cnt_dec)))
+                secwin.tableWidget.setItem(
+                    i + 1, 8, QtWidgets.QTableWidgetItem(str(cnt_inc)))
                 xlist.append(x_)
                 u1list.append(u)
                 u2list.append(p)
                 i += 1
-                #if i>n: break
-            #if self.checkBox.isChecked():
-            line1, =ax1.plot(xlist, u1list, '-g', label='С контролем ЛП')
+                # if i>n: break
+            # if self.checkBox.isChecked():
+            line1, = ax1.plot(xlist, u1list, '-g', label='С контролем ЛП')
             line2, = ax2.plot(xlist, u2list, '-m', label='С контролем ЛП')
-            #if self.checkBox.isChecked():
-            secwin.label_15.setText("Максимальная оценка ЛП 1 = " + str(round(max(S1list), 9)))
-            secwin.label_17.setText("Максимальная оценка ЛП 2 = " + str(round(max(S2list), 9)))
-            secwin.label_18.setText("Минимальная оценка ЛП 2 = " + str(round(min(S2list), 9)))
+            # if self.checkBox.isChecked():
+            secwin.label_15.setText(
+                "Максимальная оценка ЛП 1 = " + str(round(max(S1list), 9)))
+            secwin.label_17.setText(
+                "Максимальная оценка ЛП 2 = " + str(round(max(S2list), 9)))
+            secwin.label_18.setText(
+                "Минимальная оценка ЛП 2 = " + str(round(min(S2list), 9)))
             secwin.label_8.setText("Max h = " + str(max(h_list)))
             secwin.label_9.setText("Min h = " + str(min(h_list)))
             secwin.label_10.setText("Max U = " + "----")
             secwin.label_7.setText("Max X = " + "----")
             secwin.label_14.setText("Min Гл. Погр. = " + "---")
             secwin.label_13.setText("Max Гл. Погр. = " + "---")
-            secwin.label_12.setText("Минимальная оценка ЛП 1 = " + str(round(min(S1list), 9)))
+            secwin.label_12.setText(
+                "Минимальная оценка ЛП 1 = " + str(round(min(S1list), 9)))
 
             if self.checkBox.isChecked():
                 secwin.label_11.setText("Общ кол-во увел. = " + str(cnt_inc))
@@ -411,12 +471,8 @@ class Calculation(Ui_MainWindow):
             secwin.tableWidget.resizeColumnsToContents()
 
             phase_plane(u10, u20, x)
-     
+
             ax1.grid(True)
             ax2.grid(True)
             ax3.grid(True)
             self.canvas.draw()
-
-
-
-
